@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common :: common-head('로그인')}"></head>
+<body>
+
+<div class="form-container">
+    <h2>로그인</h2>
+
+    <div th:if="${param.error}" class="alert-box alert-danger mb-3">
+        이메일 또는 비밀번호가 잘못되었습니다.
+    </div>
+
+    <div th:if="${param.logout}" class="alert-box alert-success mb-3">
+        로그아웃 되었습니다.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">이메일:</label>
+            <input type="text" name="username" id="username" class="form-control" required />
+        </div>
+        <div class="mb-4">
+            <label for="password" class="form-label">비밀번호:</label>
+            <input type="password" name="password" id="password" class="form-control" required />
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">로그인</button>
+        </div>
+    </form>
+    <div class="sub-link">
+        계정이 없으신가요? <a th:href="@{/signup}">회원가입</a>
+    </div>
+</div>
+
+<div th:replace="~{common :: common-script}"></div>
+</body>
+</html>

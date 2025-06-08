@@ -1,36 +1,69 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 
-<head th:insert="~{common :: commonHead}">
-  <title>Product Manager</title>
-</head>
+<!-- 1. common.html의 head 프래그먼트를 참조합니다. 페이지 타이틀을 전달합니다. -->
+<head th:replace="~{common :: common-head('Product Manager')}"></head>
 
 <body>
-<div class="container">
-  <h1 class="mt-5">Product List</h1>
-  <a class="btn btn-primary mb-3" th:href="@{/products/new}">Create New Product</a>
 
-  <table class="table table-bordered">
-    <thead>
+<!-- 2. '홈'으로 가는 링크를 제거하기 위해 헤더를 이 페이지에 직접 정의합니다. -->
+<header class="app-header">
+  <nav class="container d-flex justify-content-between align-items-center">
+    <!-- 'Product Manager'를 링크가 아닌 일반 텍스트로 변경했습니다. -->
+    <span class="navbar-brand" style="cursor: default;">Product Manager</span>
+    <div class="d-flex align-items-center gap-2">
+      <!-- ROLE_ADMIN: 관리자 페이지 -->
+      <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <a class="btn btn-secondary btn-sm" th:href="@{/admin/users}">관리자 페이지</a>
+      </div>
+      <!-- 로그아웃 버튼 (로그인된 경우) -->
+      <form th:action="@{/logout}" method="post" style="display:inline;" th:if="${#authorization.expression('isAuthenticated()')}">
+        <button class="btn btn-logout btn-sm" type="submit">로그아웃</button>
+      </form>
+    </div>
+  </nav>
+</header>
+
+<!-- 메인 콘텐츠 영역 -->
+<div class="container">
+  <!-- 페이지 제목과 '상품 추가' 버튼을 한 줄에 배치 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 mb-0">Product List</h1>
+    <!-- 'ROLE_ADMIN' 권한을 가진 사용자에게만 '상품 추가' 버튼이 보입니다. -->
+    <a class="btn btn-primary"
+       th:href="@{/products/new}"
+       th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+      + Create New Product
+    </a>
+  </div>
+
+  <!-- 상품 목록 테이블 -->
+  <table class="table table-hover align-middle">
+    <!-- 테이블 헤더 -->
+    <thead class="table-light">
     <tr>
       <th>Product ID</th>
       <th>Name</th>
       <th>Brand</th>
       <th>Made In</th>
       <th>Price</th>
-      <th>Actions</th>
+      <!-- 'ROLE_ADMIN' 권한이 있을 때만 'Actions' 헤더를 표시합니다. -->
+      <th th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">Actions</th>
     </tr>
     </thead>
+    <!-- 테이블 바디 -->
     <tbody>
+    <!-- listProducts 모델에서 상품 목록을 반복하여 출력합니다. -->
     <tr th:each="product : ${listProducts}">
       <td th:text="${product.id}">Product ID</td>
       <td th:text="${product.name}">Name</td>
       <td th:text="${product.brand}">Brand</td>
       <td th:text="${product.madeIn}">Made in</td>
-      <td th:text="${product.price}">Price</td>
-      <td>
-        <a class="btn btn-primary btn-sm" th:href="@{'/products/edit/' + ${product.id}}">Edit</a>
+      <!-- 가격을 통화 형식으로 보기 좋게 표현합니다. -->
+      <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}">Price</td>
+      <!-- 'ROLE_ADMIN' 권한이 있을 때만 수정/삭제 버튼을 표시합니다. -->
+      <td th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <a class="btn btn-secondary btn-sm" th:href="@{'/products/edit/' + ${product.id}}">Edit</a>
         <a class="btn btn-danger btn-sm" th:href="@{'/products/delete/' + ${product.id}}">Delete</a>
       </td>
     </tr>
@@ -38,7 +71,21 @@
   </table>
 </div>
 
-<!-- Bootstrap JS fragment 삽입 -->
-<div th:insert="~{common :: commonScript}"></div>
+<!-- 3. common.html의 공통 스크립트 프래그먼트를 삽입합니다. -->
+<div th:replace="~{common :: common-script}"></div>
+
+<!-- 로그인 성공 시 메시지를 표시하기 위한 기존 스크립트 (기능 유지) -->
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const loginSuccess = /*[[${loginSuccess}]]*/ false;
+  const loginMessage = /*[[${loginMessage}]]*/ null;
+
+  if (loginSuccess && loginMessage) {
+    // alert 대신 더 사용자 친화적인 알림(Toast)으로 변경하는 것을 추천합니다.
+    alert(loginMessage);
+  }
+  /*]]>*/
+</script>
+
 </body>
 </html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common :: common-head('회원가입')}"></head>
+<body>
+
+<div class="form-container">
+  <h2>회원가입</h2>
+  <form th:action="@{/signup}" method="post">
+    <div class="mb-3">
+      <label for="email" class="form-label">이메일:</label>
+      <input type="text" name="email" id="email" class="form-control" required />
+    </div>
+    <div class="mb-4">
+      <label for="password" class="form-label">비밀번호:</label>
+      <input type="password" name="password" id="password" class="form-control" required />
+    </div>
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary btn-lg">회원가입</button>
+    </div>
+  </form>
+  <div class="sub-link">
+    이미 계정이 있으신가요? <a th:href="@{/login}">로그인</a>
+  </div>
+</div>
+
+<div th:replace="~{common :: common-script}"></div>
+</body>
+</html>
