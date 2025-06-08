@@ -71,28 +71,29 @@ public class ProductController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/save")
     public String saveProduct(@ModelAttribute("product") Product product, Model model) {
+        boolean hasError = false;
+
         if (product.getName() == null || product.getName().trim().isEmpty()) {
             model.addAttribute("error", "상품 이름은 반드시 입력해야 합니다.");
-            model.addAttribute("product", product);
-            return "new_product";
-        }
-
-        if (product.getBrand() == null || product.getBrand().trim().isEmpty()) {
+            hasError = true;
+        } else if (product.getBrand() == null || product.getBrand().trim().isEmpty()) {
             model.addAttribute("error", "브랜드는 반드시 입력해야 합니다.");
-            model.addAttribute("product", product);
-            return "new_product";
-        }
-
-        if (product.getMadeIn() == null || product.getMadeIn().trim().isEmpty()) {
+            hasError = true;
+        } else if (product.getMadeIn() == null || product.getMadeIn().trim().isEmpty()) {
             model.addAttribute("error", "원산지는 반드시 입력해야 합니다.");
-            model.addAttribute("product", product);
-            return "new_product";
+            hasError = true;
+        } else if (product.getPrice() <= 0.0) {
+            model.addAttribute("error", "가격은 0 이상이어야 합니다.");
+            hasError = true;
         }
 
-        if (product.getPrice() <= 0.0) {
-            model.addAttribute("error", "가격은 0 이상이어야 합니다.");
+        if (hasError) {
             model.addAttribute("product", product);
-            return "new_product";
+            if (product.getId() == null) {
+                return "new_product";
+            } else {
+                return "edit_product";
+            }
         }
         // 통과 시 저장
         service.save(product);
